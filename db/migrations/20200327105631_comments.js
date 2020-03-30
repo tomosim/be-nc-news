@@ -1,6 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable("comments", table => {
-    table.increments("comment_id").primary();
+    table.increments("comment_id");
     table.string("body");
     table
       .integer("article_id")
