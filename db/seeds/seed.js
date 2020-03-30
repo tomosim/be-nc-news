@@ -5,7 +5,7 @@ const {
   commentsData
 } = require("../data");
 
-const { formatUsers } = require("../utils/utils");
+const { formatUsers, formatDates } = require("../utils/utils");
 exports.seed = function(knex) {
   return knex.migrate
     .rollback()
@@ -17,7 +17,11 @@ exports.seed = function(knex) {
       const topicsPromise = knex.insert(topicsData).into("topics");
       return Promise.all([topicsPromise, usersPromise]);
     })
-    .then(mystery => {
-      console.log(mystery);
-    });
+    .then(() => {
+      return knex
+        .insert(formatDates(articlesData))
+        .into("articles")
+        .returning("*");
+    })
+    .then(console.log);
 };
