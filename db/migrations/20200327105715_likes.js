@@ -1,5 +1,6 @@
 exports.up = function(knex) {
   return knex.schema.createTable("likes", table => {
+    table.increments("like_id").primary();
     table
       .string("username")
       .references("username")
