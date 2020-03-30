@@ -4,4 +4,20 @@ const {
   articlesData,
   commentsData
 } = require("../data");
-exports.seed = function(knex) {};
+
+const { formatUsers } = require("../utils/utils");
+exports.seed = function(knex) {
+  return knex.migrate
+    .rollback()
+    .then(() => {
+      return knex.migrate.latest();
+    })
+    .then(() => {
+      const usersPromise = knex.insert(formatUsers(usersData)).into("users");
+      const topicsPromise = knex.insert(topicsData).into("topics");
+      return Promise.all([topicsPromise, usersPromise]);
+    })
+    .then(mystery => {
+      console.log(mystery);
+    });
+};
