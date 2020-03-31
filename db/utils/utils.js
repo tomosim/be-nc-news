@@ -12,10 +12,26 @@ exports.formatDates = list => {
     const { created_at, ...remainingKeys } = item;
     return { created_at: new Date(created_at), ...remainingKeys };
   });
-
   return formattedList;
 };
 
-exports.makeRefObj = list => {};
+exports.makeRefObj = list => {
+  const refObj = list.reduce((acc, el) => {
+    acc[el.title] = el.article_id;
+    return acc;
+  }, {});
 
-exports.formatComments = (comments, articleRef) => {};
+  return refObj;
+};
+
+exports.formatComments = (comments, articleRef) => {
+  const formattedComments = comments.map(comment => {
+    const { created_by: username, belongs_to, ...restOfKeys } = comment;
+    return {
+      article_id: articleRef[belongs_to],
+      username,
+      ...restOfKeys
+    };
+  });
+  return formattedComments;
+};
