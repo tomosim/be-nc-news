@@ -31,5 +31,23 @@ describe("/api", () => {
           ]);
         });
     });
+    it("GET: 200 - accepts a topic query and responds with articles from that topic", () => {
+      return request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(res => {
+          res.body.articles.forEach(article => {
+            expect(article.topic).to.equal("mitch");
+          });
+        });
+    });
+    it("GET: 404 - responds with an error message when given a topic that doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?topic=not-a-topic")
+        .expect(404)
+        .then(res => {
+          expect(res.body.msg).to.equal("Topic not found");
+        });
+    });
   });
 });
