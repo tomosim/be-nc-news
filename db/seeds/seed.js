@@ -5,7 +5,12 @@ const {
   commentsData
 } = require("../data");
 
-const { formatUsers, formatDates } = require("../utils/utils");
+const {
+  formatUsers,
+  formatDates,
+  makeRefObj,
+  formatComments
+} = require("../utils/utils");
 exports.seed = function(knex) {
   return knex.migrate
     .rollback()
@@ -23,5 +28,13 @@ exports.seed = function(knex) {
         .into("articles")
         .returning("*");
     })
-    .then(console.log);
+    .then(articleRows => {
+      const articleRefObj = makeRefObj(articleRows);
+      const commentsWithDates = formatDates(commentsData);
+      const reformattedComments = formatComments(
+        commentsWithDates,
+        articleRefObj
+      );
+      return knex.insert(reformattedComments).into("comments");
+    });
 };
