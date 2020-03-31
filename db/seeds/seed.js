@@ -9,7 +9,8 @@ const {
   formatUsers,
   formatDates,
   makeRefObj,
-  formatComments
+  formatComments,
+  formatLikes
 } = require("../utils/utils");
 exports.seed = function(knex) {
   return knex.migrate
@@ -35,6 +36,10 @@ exports.seed = function(knex) {
         commentsWithDates,
         articleRefObj
       );
-      return knex.insert(reformattedComments).into("comments");
+      const commentsPromise = knex.insert(reformattedComments).into("comments");
+
+      const formattedLikes = formatLikes(usersData, articleRefObj);
+      const likesPromise = knex.insert(formattedLikes).into("likes");
+      return Promise.all([commentsPromise, likesPromise]);
     });
 };
