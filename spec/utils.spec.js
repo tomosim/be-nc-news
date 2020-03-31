@@ -3,7 +3,8 @@ const {
   formatUsers,
   formatDates,
   makeRefObj,
-  formatComments
+  formatComments,
+  formatLikes
 } = require("../db/utils/utils");
 
 describe("formatUsers", () => {
@@ -342,5 +343,82 @@ describe("formatComments", () => {
 
     formatComments(comments, refObj);
     expect(comments).to.deep.equal(commentsCopy);
+  });
+});
+
+/*
+[
+  {username: 'tomosim', likedArticles:['The vegan carnivore?','Living in the shadow of a great man']},
+  {username: 'butter_bridge', likedArticles:['Living in the shadow of a great man']},
+  {username: 'icellusedcars', likedArticles:[]},
+]
+
+{'The vegan carnivore?': 1, 'Living in the shadow of a great man': 2}
+
+[{username: 'tomosim', article_id: 1}, {username: 'tomosim', article_id: 2}, {username: 'butter_bridge', article_id: 1} ]
+
+
+*/
+describe("formatLikes", () => {
+  it("returns an empty array when given an empty array", () => {
+    expect(formatLikes([], {})).to.deep.equal([]);
+  });
+  it("returns an empty array when given a user with no liked articles", () => {
+    const users = [{ username: "tomosim", likedArticles: [] }];
+    expect(formatLikes(users, {})).to.deep.equal([]);
+  });
+  it("formats one liked article in one user", () => {
+    const users = [
+      { username: "tomosim", likedArticles: ["The vegan carnivore?"] }
+    ];
+    const refObj = { "The vegan carnivore?": 1 };
+    expect(formatLikes(users, refObj)).to.deep.equal([
+      { username: "tomosim", article_id: 1 }
+    ]);
+  });
+  it("formats multiple likes in one user", () => {
+    const users = [
+      {
+        username: "tomosim",
+        likedArticles: [
+          "The vegan carnivore?",
+          "Living in the shadow of a great man"
+        ]
+      }
+    ];
+    const refObj = {
+      "The vegan carnivore?": 1,
+      "Living in the shadow of a great man": 2
+    };
+    const expected = [
+      { username: "tomosim", article_id: 1 },
+      { username: "tomosim", article_id: 2 }
+    ];
+    expect(formatLikes(users, refObj)).to.deep.equal(expected);
+  });
+  it("formats likes from multiple users", () => {
+    const users = [
+      {
+        username: "tomosim",
+        likedArticles: [
+          "The vegan carnivore?",
+          "Living in the shadow of a great man"
+        ]
+      },
+      {
+        username: "butter_bridge",
+        likedArticles: ["Living in the shadow of a great man"]
+      }
+    ];
+    const refObj = {
+      "The vegan carnivore?": 1,
+      "Living in the shadow of a great man": 2
+    };
+    const expected = [
+      { username: "tomosim", article_id: 1 },
+      { username: "tomosim", article_id: 2 },
+      { username: "butter_bridge", article_id: 2 }
+    ];
+    expect(formatLikes(users, refObj)).to.deep.equal(expected);
   });
 });

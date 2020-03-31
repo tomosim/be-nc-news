@@ -35,3 +35,15 @@ exports.formatComments = (comments, articleRef) => {
   });
   return formattedComments;
 };
+
+exports.formatLikes = (usersData, refObj) => {
+  let formattedLikes = [];
+  usersData.forEach(user => {
+    const likes = user.likedArticles.map(article => {
+      const article_id = refObj[article];
+      return { username: user.username, article_id };
+    });
+    formattedLikes = [...formattedLikes, ...likes];
+  });
+  return formattedLikes;
+};
