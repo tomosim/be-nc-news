@@ -1,7 +1,7 @@
 exports.up = function(knex) {
   return knex.schema.createTable("comments", table => {
     table.increments("comment_id");
-    table.string("body");
+    table.string("body", 2000);
     table
       .integer("article_id")
       .references("article_id")
