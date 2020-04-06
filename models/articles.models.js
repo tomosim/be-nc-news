@@ -44,3 +44,13 @@ exports.selectArticles = ({
       return articles;
     });
 };
+
+exports.insertArticle = function (article) {
+  return knex
+    .insert(article)
+    .into("articles")
+    .returning("*")
+    .then(([article]) => {
+      return article;
+    });
+};
