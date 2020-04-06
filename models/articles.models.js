@@ -1,7 +1,14 @@
 const knex = require("../db/connection");
 const { checkExists } = require("./utils.models");
 
-exports.selectArticles = ({ topic, author, liked }) => {
+exports.selectArticles = ({
+  topic,
+  author,
+  liked,
+  sort_by = "created_at",
+  order,
+}) => {
+  order = order === "desc" || order === "asc" ? order : "desc";
   return knex
     .select("*")
     .from("articles")
@@ -23,6 +30,7 @@ exports.selectArticles = ({ topic, author, liked }) => {
           .where("users.username", liked);
       }
     })
+    .orderBy(sort_by, order)
     .then((articles) => {
       if (topic !== undefined && articles.length === 0) {
         return checkExists("topics", "slug", topic);
