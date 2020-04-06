@@ -92,5 +92,32 @@ describe("/api", () => {
           expect(res.body.articles).to.deep.equal([]);
         });
     });
+    it("GET: 200 - responds with an array of articles liked by a specific author", function () {
+      return request(app)
+        .get("/api/articles?liked=butter_bridge")
+        .expect(200)
+        .then(function (res) {
+          expect(res.body.articles).to.have.lengthOf(1);
+          expect(res.body.articles[0].title).to.equal(
+            "Living in the shadow of a great man"
+          );
+        });
+    });
+    it("GET: 404 - responds with an error message when given a liked query with an author that doesn't exist", function () {
+      return request(app)
+        .get("/api/articles?liked=not-a-user")
+        .expect(404)
+        .then(function (res) {
+          expect(res.body.msg).to.equal("User not found");
+        });
+    });
+    it("GET: 200 - responds with an empty array when given an author that has liked no articles", function () {
+      return request(app)
+        .get("/api/articles?liked=rogersop")
+        .expect(200)
+        .then(function (res) {
+          expect(res.body.articles).to.deep.equal([]);
+        });
+    });
   });
 });
