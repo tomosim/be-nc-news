@@ -1,8 +1,8 @@
 const { selectArticles } = require("../models/articles.models");
 
-exports.sendArticles = (req, res, next) => {
+exports.sendArticles = async (req, res, next) => {
   selectArticles(req.query)
-    .then(articles => {
+    .then((articles) => {
       res.status(200).send({ articles });
     })
     .catch(next);
