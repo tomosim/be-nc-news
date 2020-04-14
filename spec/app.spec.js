@@ -322,6 +322,25 @@ describe("/api", () => {
             );
           });
       });
+      it("DEL: 204 - deletes article from database", () => {
+        return request(app).del("/api/articles/1").expect(204);
+      });
+      it("DEL: 404 - responds with an error when given a non-existant article_id", () => {
+        return request(app)
+          .del("/api/articles/999")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Article not found");
+          });
+      });
+      it("DEL: 400 - responds with an error when given an invalid article_id", () => {
+        return request(app)
+          .del("/api/articles/abc")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Invalid article ID");
+          });
+      });
     });
   });
 });

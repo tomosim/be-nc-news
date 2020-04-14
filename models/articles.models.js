@@ -84,3 +84,12 @@ exports.updateArticle = (article_id, inc_votes) => {
       } else return article;
     });
 };
+exports.deleteArticle = (article_id) => {
+  return knex("articles")
+    .where({ article_id })
+    .del()
+    .then((rowCount) => {
+      if (rowCount === 0)
+        return Promise.reject({ status: 404, msg: "Article not found" });
+    });
+};

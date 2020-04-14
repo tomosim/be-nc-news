@@ -3,6 +3,7 @@ const {
   insertArticle,
   selectArticle,
   updateArticle,
+  deleteArticle,
 } = require("../models/articles.models");
 
 exports.sendArticles = (req, res, next) => {
@@ -36,6 +37,15 @@ exports.editVotes = (req, res, next) => {
   updateArticle(article_id, inc_votes)
     .then((article) => {
       res.send({ article });
+    })
+    .catch(next);
+};
+
+exports.removeArticle = (req, res, next) => {
+  const { article_id } = req.params;
+  deleteArticle(article_id)
+    .then(() => {
+      res.status(204).send();
     })
     .catch(next);
 };

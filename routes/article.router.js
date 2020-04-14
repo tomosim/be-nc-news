@@ -4,6 +4,7 @@ const {
   postArticle,
   sendArticle,
   editVotes,
+  removeArticle,
 } = require("../controllers/articles.controllers");
 const { checkBody } = require("../db/utils/utils");
 
@@ -12,6 +13,7 @@ articleRouter.route("/").get(sendArticles).post(postArticle);
 articleRouter
   .route("/:article_id")
   .get(sendArticle)
-  .patch(checkBody, editVotes);
+  .patch(checkBody, editVotes)
+  .delete(removeArticle);
 
 module.exports = articleRouter;
