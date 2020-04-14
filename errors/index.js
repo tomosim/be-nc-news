@@ -8,7 +8,17 @@ exports.handleCustomErrors = (err, req, res, next) => {
 };
 
 exports.handlePSQLErrors = (err, req, res, next) => {
-  const codes = { "42703": { status: 400, msg: "Column does not exist" } };
+  const codes = {
+    "42703": { status: 400, msg: "Column does not exist" },
+    23503: {
+      status: 404,
+      msg:
+        err.detail &&
+        err.detail.match(/"\w+"/g)[0][1].toUpperCase() +
+          err.detail.match(/"\w+"/g)[0].slice(2, -2) +
+          " not found",
+    },
+  };
   if (err.code in codes) {
     const { status, msg } = codes[err.code];
     res.status(status).send({ msg });

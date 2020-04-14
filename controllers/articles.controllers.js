@@ -9,7 +9,9 @@ exports.sendArticles = (req, res, next) => {
 };
 
 exports.postArticle = (req, res, next) => {
-  insertArticle(req.body).then((article) => {
-    res.status(201).send({ article });
-  });
+  insertArticle(req.body)
+    .then((article) => {
+      res.status(201).send({ article });
+    })
+    .catch(next);
 };

@@ -185,6 +185,43 @@ describe("/api", () => {
                 expect(res.body.article.votes).to.equal(0);
               });
           });
+          it("POST: 404 - responds with an error message when the author does not exist", function () {
+            return request(app)
+              .post("/api/articles")
+              .send({
+                body: "test",
+                title: "new article",
+                author: "not-a-real-username",
+                topic: "mitch",
+              })
+              .expect(404)
+              .then(function (res) {
+                expect(res.body.msg).to.equal("User not found");
+              });
+          });
+          it("POST: 404 - responds with an error message when the topic does not exist", function () {
+            return request(app)
+              .post("/api/articles")
+              .send({
+                body: "test",
+                title: "new article",
+                author: "butter_bridge",
+                topic: "not-a-topic",
+              })
+              .expect(404)
+              .then(function (res) {
+                expect(res.body.msg).to.equal("Topic not found");
+              });
+          });
+          it("POST: 400 - responds with an error message when given a new article in the wrong format", function () {
+            return request(app)
+              .post("/api/articles")
+              .send({ invalid: "article format" })
+              .expect(400)
+              .then(function (res) {
+                expect(res.body.msg).to.equal("Column does not exist");
+              });
+          });
         });
       });
     });
