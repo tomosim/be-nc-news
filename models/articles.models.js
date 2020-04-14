@@ -72,3 +72,15 @@ exports.selectArticle = (article_id) => {
       } else return article;
     });
 };
+
+exports.updateArticle = (article_id, inc_votes) => {
+  return knex("articles")
+    .where({ article_id })
+    .increment({ votes: inc_votes })
+    .returning("*")
+    .then(([article]) => {
+      if (article === undefined) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      } else return article;
+    });
+};

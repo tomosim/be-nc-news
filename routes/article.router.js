@@ -3,10 +3,15 @@ const {
   sendArticles,
   postArticle,
   sendArticle,
+  editVotes,
 } = require("../controllers/articles.controllers");
+const { checkBody } = require("../db/utils/utils");
 
 articleRouter.route("/").get(sendArticles).post(postArticle);
 
-articleRouter.route("/:article_id").get(sendArticle);
+articleRouter
+  .route("/:article_id")
+  .get(sendArticle)
+  .patch(checkBody, editVotes);
 
 module.exports = articleRouter;

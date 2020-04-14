@@ -264,6 +264,64 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Invalid article ID");
           });
       });
+      it("PATCH: 200 - increases the article votes and responds with updated article", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: 1 })
+          .expect(200)
+          .then((res) => {
+            expect(res.body.article.votes).to.equal(101);
+          });
+      });
+      it("PATCH: 200 - decreases the article votes and responds with updated article", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: -1 })
+          .expect(200)
+          .then((res) => {
+            expect(res.body.article.votes).to.equal(99);
+          });
+      });
+      it("PATCH: 404 - responds with an error when given a non-existant article ID", () => {
+        return request(app)
+          .patch("/api/articles/999")
+          .send({ inc_votes: 1 })
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Article not found");
+          });
+      });
+      it("PATCH: 400 - responds with an error when given an invalid article ID", () => {
+        return request(app)
+          .patch("/api/articles/abc")
+          .send({ inc_votes: 1 })
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Invalid article ID");
+          });
+      });
+      it("PATCH: 400 - responds with an error when given a bad body", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ invalid: "body" })
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).to.equal(
+              "Invalid body. Include key 'inc_votes'"
+            );
+          });
+      });
+      it("PATCH: 400 - responds with an error when given a data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .send({ inc_votes: "Not a number" })
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).to.equal(
+              "Invalid value. 'inc_votes' must be a number"
+            );
+          });
+      });
     });
   });
 });
