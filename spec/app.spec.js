@@ -16,20 +16,24 @@ describe("/api", () => {
   });
   describe("/articles", () => {
     describe("*** FILTERING ***", function () {
-      it("GET: 200 - responds with an array of articles", () => {
+      it("GET: 200 - responds with an array of articles each with a count of the associated comments", () => {
         return request(app)
           .get("/api/articles")
           .expect(200)
           .then((res) => {
-            expect(res.body.articles[0]).to.have.all.keys([
-              "article_id",
-              "title",
-              "body",
-              "author",
-              "topic",
-              "votes",
-              "created_at",
-            ]);
+            console.log(res.body.articles);
+            res.body.articles.forEach((article) => {
+              expect(article).to.have.all.keys([
+                "article_id",
+                "title",
+                "body",
+                "author",
+                "topic",
+                "votes",
+                "created_at",
+                "comment_count",
+              ]);
+            });
           });
       });
       it("GET: 200 - accepts a topic query and responds with articles from that topic", () => {
@@ -71,6 +75,7 @@ describe("/api", () => {
               "topic",
               "votes",
               "created_at",
+              "comment_count",
             ]);
             res.body.articles.forEach((article) => {
               expect(article.author).to.equal("butter_bridge");
@@ -120,109 +125,129 @@ describe("/api", () => {
             expect(res.body.articles).to.deep.equal([]);
           });
       });
-      describe("*** SORTING ***", function () {
-        it("GET: 200 - responds with the articles sorted by descending created_at by default", function () {
-          return request(app)
-            .get("/api/articles")
-            .expect(200)
-            .then(function (res) {
-              expect(res.body.articles).to.be.descendingBy("created_at");
-            });
-        });
-        it("GET: 200 - accepts a sort_by query that changes the sorting property", function () {
-          return request(app)
-            .get("/api/articles?sort_by=title")
-            .expect(200)
-            .then(function (res) {
-              expect(res.body.articles).to.be.descendingBy("title");
-            });
-        });
-        it("GET: 400 - responds with an error when the sort_by query is a non-existent column", function () {
-          return request(app)
-            .get("/api/articles?sort_by=not-a-column")
-            .expect(400)
-            .then(function (res) {
-              expect(res.body.msg).to.equal("Column does not exist");
-            });
-        });
-        it("GET: 200 - accepts an order query asc/desc responds with the articles in that order", function () {
-          return request(app)
-            .get("/api/articles?order=asc")
-            .expect(200)
-            .then(function (res) {
-              expect(res.body.articles).to.be.ascendingBy("created_at");
-            });
-        });
-        it("GET: 200 - ignores order queries that are not asc or desc", function () {
-          return request(app)
-            .get("/api/articles?order=meaningless-query")
-            .expect(200)
-            .then(function (res) {
-              expect(res.body.articles).to.be.descendingBy("created_at");
-            });
-        });
-        describe("*** POSTING ***", function () {
-          it("POST: 201 - accepts a new article and responds with the article after it has been inserted into the database", function () {
-            return request(app)
-              .post("/api/articles")
-              .send({
-                body: "test",
-                title: "new article",
-                author: "butter_bridge",
-                topic: "mitch",
-              })
-              .expect(201)
-              .then(function (res) {
-                expect(res.body.article).to.have.all.keys([
-                  "article_id",
-                  "title",
-                  "body",
-                  "author",
-                  "topic",
-                  "votes",
-                  "created_at",
-                ]);
-                expect(res.body.article.votes).to.equal(0);
-              });
+    });
+    describe("*** SORTING ***", function () {
+      it("GET: 200 - responds with the articles sorted by descending created_at by default", function () {
+        return request(app)
+          .get("/api/articles")
+          .expect(200)
+          .then(function (res) {
+            expect(res.body.articles).to.be.descendingBy("created_at");
           });
-          it("POST: 404 - responds with an error message when the author does not exist", function () {
-            return request(app)
-              .post("/api/articles")
-              .send({
-                body: "test",
-                title: "new article",
-                author: "not-a-real-username",
-                topic: "mitch",
-              })
-              .expect(404)
-              .then(function (res) {
-                expect(res.body.msg).to.equal("User not found");
-              });
+      });
+      it("GET: 200 - accepts a sort_by query that changes the sorting property", function () {
+        return request(app)
+          .get("/api/articles?sort_by=title")
+          .expect(200)
+          .then(function (res) {
+            expect(res.body.articles).to.be.descendingBy("title");
           });
-          it("POST: 404 - responds with an error message when the topic does not exist", function () {
-            return request(app)
-              .post("/api/articles")
-              .send({
-                body: "test",
-                title: "new article",
-                author: "butter_bridge",
-                topic: "not-a-topic",
-              })
-              .expect(404)
-              .then(function (res) {
-                expect(res.body.msg).to.equal("Topic not found");
-              });
+      });
+      it("GET: 400 - responds with an error when the sort_by query is a non-existent column", function () {
+        return request(app)
+          .get("/api/articles?sort_by=not-a-column")
+          .expect(400)
+          .then(function (res) {
+            expect(res.body.msg).to.equal("Column does not exist");
           });
-          it("POST: 400 - responds with an error message when given a new article in the wrong format", function () {
-            return request(app)
-              .post("/api/articles")
-              .send({ invalid: "article format" })
-              .expect(400)
-              .then(function (res) {
-                expect(res.body.msg).to.equal("Column does not exist");
-              });
+      });
+      it("GET: 200 - accepts an order query asc/desc responds with the articles in that order", function () {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(function (res) {
+            expect(res.body.articles).to.be.ascendingBy("created_at");
           });
-        });
+      });
+      it("GET: 200 - ignores order queries that are not asc or desc", function () {
+        return request(app)
+          .get("/api/articles?order=meaningless-query")
+          .expect(200)
+          .then(function (res) {
+            expect(res.body.articles).to.be.descendingBy("created_at");
+          });
+      });
+    });
+    describe("*** POSTING ***", function () {
+      it("POST: 201 - accepts a new article and responds with the article after it has been inserted into the database", function () {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            body: "test",
+            title: "new article",
+            author: "butter_bridge",
+            topic: "mitch",
+          })
+          .expect(201)
+          .then(function (res) {
+            expect(res.body.article).to.have.all.keys([
+              "article_id",
+              "title",
+              "body",
+              "author",
+              "topic",
+              "votes",
+              "created_at",
+            ]);
+            expect(res.body.article.votes).to.equal(0);
+          });
+      });
+      it("POST: 404 - responds with an error message when the author does not exist", function () {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            body: "test",
+            title: "new article",
+            author: "not-a-real-username",
+            topic: "mitch",
+          })
+          .expect(404)
+          .then(function (res) {
+            expect(res.body.msg).to.equal("User not found");
+          });
+      });
+      it("POST: 404 - responds with an error message when the topic does not exist", function () {
+        return request(app)
+          .post("/api/articles")
+          .send({
+            body: "test",
+            title: "new article",
+            author: "butter_bridge",
+            topic: "not-a-topic",
+          })
+          .expect(404)
+          .then(function (res) {
+            expect(res.body.msg).to.equal("Topic not found");
+          });
+      });
+      it("POST: 400 - responds with an error message when given a new article in the wrong format", function () {
+        return request(app)
+          .post("/api/articles")
+          .send({ invalid: "article format" })
+          .expect(400)
+          .then(function (res) {
+            expect(res.body.msg).to.equal("Column does not exist");
+          });
+      });
+    });
+    describe("/:article_id", () => {
+      it("GET: 200 - responds with a single article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then((res) => {
+            expect(res.body.article).to.have.keys([
+              "article_id",
+              "title",
+              "body",
+              "author",
+              "topic",
+              "votes",
+              "created_at",
+              "comment_count",
+            ]);
+            expect(res.body.article.article_id).to.equal(1);
+          });
       });
     });
   });

@@ -10,7 +10,7 @@ exports.selectArticles = ({
 }) => {
   order = order === "desc" || order === "asc" ? order : "desc";
   return knex
-    .select("*")
+    .select("articles.*")
     .from("articles")
     .modify((queryBuilder) => {
       if (topic !== undefined) {
@@ -30,6 +30,9 @@ exports.selectArticles = ({
           .where("users.username", liked);
       }
     })
+    .count("comments.article_id AS comment_count")
+    .leftJoin("comments", "comments.article_id", "=", "articles.article_id")
+    .groupBy("articles.article_id")
     .orderBy(sort_by, order)
     .then((articles) => {
       if (topic !== undefined && articles.length === 0) {
@@ -53,4 +56,14 @@ exports.insertArticle = function (article) {
     .then(([article]) => {
       return article;
     });
+};
+
+exports.selectArticle = (article_id) => {
+  return knex
+    .first("articles.*")
+    .from("articles")
+    .count("comments.article_id AS comment_count")
+    .leftJoin("comments", "comments.article_id", "=", "articles.article_id")
+    .groupBy("articles.article_id")
+    .where("articles.article_id", article_id);
 };
