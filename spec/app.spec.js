@@ -21,7 +21,6 @@ describe("/api", () => {
           .get("/api/articles")
           .expect(200)
           .then((res) => {
-            console.log(res.body.articles);
             res.body.articles.forEach((article) => {
               expect(article).to.have.all.keys([
                 "article_id",
@@ -247,6 +246,22 @@ describe("/api", () => {
               "comment_count",
             ]);
             expect(res.body.article.article_id).to.equal(1);
+          });
+      });
+      it("GET: 404 - responds with an error when given a non-existant article ID", () => {
+        return request(app)
+          .get("/api/articles/999")
+          .expect(404)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Article not found");
+          });
+      });
+      it("GET: 400 - responds with an error when given an invalid article ID", () => {
+        return request(app)
+          .get("/api/articles/abc")
+          .expect(400)
+          .then((res) => {
+            expect(res.body.msg).to.equal("Invalid article ID");
           });
       });
     });

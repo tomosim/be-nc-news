@@ -65,5 +65,10 @@ exports.selectArticle = (article_id) => {
     .count("comments.article_id AS comment_count")
     .leftJoin("comments", "comments.article_id", "=", "articles.article_id")
     .groupBy("articles.article_id")
-    .where("articles.article_id", article_id);
+    .where("articles.article_id", article_id)
+    .then((article) => {
+      if (article === undefined) {
+        return Promise.reject({ status: 404, msg: "Article not found" });
+      } else return article;
+    });
 };

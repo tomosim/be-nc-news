@@ -1,5 +1,5 @@
 exports.handleCustomErrors = (err, req, res, next) => {
-  if ("status" in err === true) {
+  if ("status" in err) {
     const { status, msg } = err;
     res.status(status).send({ msg });
   } else {
@@ -10,6 +10,7 @@ exports.handleCustomErrors = (err, req, res, next) => {
 exports.handlePSQLErrors = (err, req, res, next) => {
   const codes = {
     "42703": { status: 400, msg: "Column does not exist" },
+    "22P02": { status: 400, msg: "Invalid article ID" },
     23503: {
       status: 404,
       msg:
