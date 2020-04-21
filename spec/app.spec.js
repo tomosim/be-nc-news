@@ -341,6 +341,167 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Invalid article ID");
           });
       });
+      describe("/comments", () => {
+        it("GET: 200 - responds with an array of comments for a given article", () => {
+          return request(app)
+            .get("/api/articles/1/comments")
+            .expect(200)
+            .then((res) => {
+              res.body.comments.forEach((comment) => {
+                expect(comment.article_id).to.equal(1);
+                expect(comment).to.have.all.keys([
+                  "comment_id",
+                  "body",
+                  "article_id",
+                  "username",
+                  "votes",
+                  "created_at",
+                ]);
+              });
+            });
+        });
+        it("GET: 200 - responds with an empty array when the specified article has no comments", () => {
+          return request(app)
+            .get("/api/articles/2/comments")
+            .expect(200)
+            .then((res) => {
+              expect(res.body.comments).to.have.lengthOf(0);
+            });
+        });
+        it("GET: 404 - responds with an error when given a non-existant article ID", () => {
+          return request(app)
+            .get("/api/articles/999/comments")
+            .expect(404)
+            .then((res) => {
+              expect(res.body.msg).to.equal("Article not found");
+            });
+        });
+        it("GET: 400 - responds with an error when given an invalid article ID", () => {
+          return request(app)
+            .get("/api/articles/abc/comments")
+            .expect(400)
+            .then((res) => {
+              expect(res.body.msg).to.equal("Invalid article ID");
+            });
+        });
+        describe("*** SORTING ***", () => {
+          it("GET: 200 - the comments are sorted in descending order by created_at by default", () => {
+            return request(app)
+              .get("/api/articles/1/comments")
+              .expect(200)
+              .then((res) => {
+                expect(res.body.comments).to.be.descendingBy("created_at");
+              });
+          });
+          it("GET: 200 - takes a sort_by query and responds with the comments sorted by that column", () => {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=votes")
+              .expect(200)
+              .then((res) => {
+                expect(res.body.comments).to.be.descendingBy("votes");
+              });
+          });
+          it("GET: 200 - takes an order query and responds with the comments sorted in that order", () => {
+            return request(app)
+              .get("/api/articles/1/comments?order=asc")
+              .expect(200)
+              .then((res) => {
+                expect(res.body.comments).to.be.ascendingBy("created_at");
+              });
+          });
+          it("GET: 400 - responds with an error when the sort_by query is a non-existent column", function () {
+            return request(app)
+              .get("/api/articles/1/comments?sort_by=not-a-column")
+              .expect(400)
+              .then(function (res) {
+                expect(res.body.msg).to.equal("Column does not exist");
+              });
+          });
+          it("GET: 200 - ignores order queries that are not asc or desc", function () {
+            return request(app)
+              .get("/api/articles/1/comments?order=meaningless-query")
+              .expect(200)
+              .then(function (res) {
+                expect(res.body.comments).to.be.descendingBy("created_at");
+              });
+          });
+        });
+        describe("*** POSTING ***", () => {
+          it("POST: 201 - accepts a new comment and inserts it into the database responding with the inserted comment", () => {
+            return request(app)
+              .post("/api/articles/1/comments")
+              .send({ body: "new comment", username: "butter_bridge" })
+              .expect(201)
+              .then((res) => {
+                expect(res.body.comment).to.have.all.keys([
+                  "comment_id",
+                  "body",
+                  "article_id",
+                  "username",
+                  "votes",
+                  "created_at",
+                ]);
+                expect(res.body.comment.body).to.equal("new comment");
+                expect(res.body.comment.username).to.equal("butter_bridge");
+                expect(res.body.comment.votes).to.equal(0);
+              });
+          });
+          it("POST: 404 - responds with an error when given a non-existant article ID", () => {
+            return request(app)
+              .post("/api/articles/999/comments")
+              .send({ body: "new comment", username: "butter_bridge" })
+              .expect(404)
+              .then((res) => {
+                expect(res.body.msg).to.equal("Article not found");
+              });
+          });
+          it("POST: 400 - responds with an error when given an invalid article ID", () => {
+            return request(app)
+              .post("/api/articles/abc/comments")
+              .send({ body: "new comment", username: "butter_bridge" })
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).to.equal("Invalid article ID");
+              });
+          });
+          it("POST: 400 - responds with an error when given a body missing a body", () => {
+            return request(app)
+              .post("/api/articles/1/comments")
+              .send({ username: "butter_bridge" })
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).to.equal("Incomplete body");
+              });
+          });
+          it("POST: 404 - responds with an error when the username does not exist", () => {
+            return request(app)
+              .post("/api/articles/1/comments")
+              .send({ body: "New comment", username: "not-a-real-username" })
+              .expect(404)
+              .then((res) => {
+                expect(res.body.msg).to.equal("User not found");
+              });
+          });
+          it("POST: 400 - responds with an error when the body contains extra keys", () => {
+            return request(app)
+              .post("/api/articles/1/comments")
+              .send({
+                body: "New comment",
+                username: "butter_bridge",
+                invalid: "key",
+              })
+              .expect(400)
+              .then((res) => {
+                expect(res.body.msg).to.equal("Column does not exist");
+              });
+          });
+        });
+      });
+    });
+  });
+  describe.only("/comments/:comment_id", () => {
+    it("DEL: 204 - removes comment from database and responds with no body", () => {
+      return request(app).delete("/api/comments/1").expect(204);
     });
   });
 });
