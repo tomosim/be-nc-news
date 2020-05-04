@@ -615,7 +615,7 @@ describe("/api", () => {
         });
     });
   });
-  describe.only("/users", () => {
+  describe("/users", () => {
     it("GET: 200 - responds with an array of users", () => {
       return request(app)
         .get("/api/users")
