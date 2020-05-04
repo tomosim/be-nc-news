@@ -7,7 +7,7 @@ app.use(express.json());
 
 app.use("/api", apiRouter);
 
-app.use(handleCustomErrors);
 app.use(handlePSQLErrors);
+app.use(handleCustomErrors);
 
 module.exports = app;

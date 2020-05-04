@@ -23,3 +23,27 @@ exports.insertComment = (article_id, newComment) => {
       return comment;
     });
 };
+
+exports.deleteComment = (comment_id) => {
+  return knex("comments")
+    .delete()
+    .where({ comment_id })
+    .then((rowCount) => {
+      if (rowCount === 0)
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      else return;
+    });
+};
+
+exports.updateComment = (comment_id, inc_votes) => {
+  return knex("comments")
+    .increment("votes", inc_votes)
+    .where({ comment_id })
+    .returning("*")
+    .then(([comment]) => {
+      if (comment === undefined) {
+        return Promise.reject({ status: 404, msg: "Comment not found" });
+      }
+      return comment;
+    });
+};

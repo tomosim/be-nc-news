@@ -256,12 +256,12 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Article not found");
           });
       });
-      it("GET: 400 - responds with an error when given an invalid article ID", () => {
+      it("GET: 400 - responds with an error when given an invalid ID", () => {
         return request(app)
           .get("/api/articles/abc")
           .expect(400)
           .then((res) => {
-            expect(res.body.msg).to.equal("Invalid article ID");
+            expect(res.body.msg).to.equal("Invalid ID");
           });
       });
       it("PATCH: 200 - increases the article votes and responds with updated article", () => {
@@ -291,13 +291,13 @@ describe("/api", () => {
             expect(res.body.msg).to.equal("Article not found");
           });
       });
-      it("PATCH: 400 - responds with an error when given an invalid article ID", () => {
+      it("PATCH: 400 - responds with an error when given an invalid ID", () => {
         return request(app)
           .patch("/api/articles/abc")
           .send({ inc_votes: 1 })
           .expect(400)
           .then((res) => {
-            expect(res.body.msg).to.equal("Invalid article ID");
+            expect(res.body.msg).to.equal("Invalid ID");
           });
       });
       it("PATCH: 400 - responds with an error when given a bad body", () => {
@@ -338,7 +338,7 @@ describe("/api", () => {
           .del("/api/articles/abc")
           .expect(400)
           .then((res) => {
-            expect(res.body.msg).to.equal("Invalid article ID");
+            expect(res.body.msg).to.equal("Invalid ID");
           });
       });
       describe("/comments", () => {
@@ -376,12 +376,12 @@ describe("/api", () => {
               expect(res.body.msg).to.equal("Article not found");
             });
         });
-        it("GET: 400 - responds with an error when given an invalid article ID", () => {
+        it("GET: 400 - responds with an error when given an invalid ID", () => {
           return request(app)
             .get("/api/articles/abc/comments")
             .expect(400)
             .then((res) => {
-              expect(res.body.msg).to.equal("Invalid article ID");
+              expect(res.body.msg).to.equal("Invalid ID");
             });
         });
         describe("*** SORTING ***", () => {
@@ -455,16 +455,16 @@ describe("/api", () => {
                 expect(res.body.msg).to.equal("Article not found");
               });
           });
-          it("POST: 400 - responds with an error when given an invalid article ID", () => {
+          it("POST: 400 - responds with an error when given an invalid ID", () => {
             return request(app)
               .post("/api/articles/abc/comments")
               .send({ body: "new comment", username: "butter_bridge" })
               .expect(400)
               .then((res) => {
-                expect(res.body.msg).to.equal("Invalid article ID");
+                expect(res.body.msg).to.equal("Invalid ID");
               });
           });
-          it("POST: 400 - responds with an error when given a body missing a body", () => {
+          it("POST: 400 - responds with an error when given a body missing a property", () => {
             return request(app)
               .post("/api/articles/1/comments")
               .send({ username: "butter_bridge" })
@@ -499,9 +499,120 @@ describe("/api", () => {
       });
     });
   });
-  describe.only("/comments/:comment_id", () => {
+  describe("/comments/:comment_id", () => {
     it("DEL: 204 - removes comment from database and responds with no body", () => {
       return request(app).delete("/api/comments/1").expect(204);
+    });
+    it("DEL: 404 - responds with an error when given a non-existant comment ID", () => {
+      return request(app)
+        .delete("/api/comments/999")
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Comment not found");
+        });
+    });
+    it("DEL: 400 - responds with an error when given an invalid comment ID", () => {
+      return request(app)
+        .delete("/api/comments/abc")
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Invalid ID");
+        });
+    });
+    it("PATCH: 200 - increases the comment votes and responds with updated comment", () => {
+      return request(app)
+        .patch("/api/comments/5")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then((res) => {
+          expect(res.body.comment.votes).to.equal(1);
+        });
+    });
+    it("PATCH: 404 - responds with an error when given a non-existant comment ID", () => {
+      return request(app)
+        .patch("/api/comments/999")
+        .send({ inc_votes: 1 })
+        .expect(404)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Comment not found");
+        });
+    });
+    it("PATCH: 400 - responds with an error when given an invalid comment ID", () => {
+      return request(app)
+        .patch("/api/comments/abc")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal("Invalid ID");
+        });
+    });
+    it("PATCH: 400 - responds with an error when given a bad body", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ invalid: "body" })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal(
+            "Invalid body. Include key 'inc_votes'"
+          );
+        });
+    });
+    it("PATCH: 400 - responds with an error when given a data type", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "Not a number" })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal(
+            "Invalid value. 'inc_votes' must be a number"
+          );
+        });
+    });
+  });
+  describe("/topics", () => {
+    it("GET: 200 - responds with an array of all topics", () => {
+      return request(app)
+        .get("/api/topics")
+        .expect(200)
+        .then((res) => {
+          res.body.topics.forEach((topic) => {
+            expect(topic).to.have.all.keys(["slug", "description"]);
+          });
+        });
+    });
+    it("POST: 201 -  accepts a new topic and inserts it into the database responding with the inserted topic", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ slug: "new_topic", description: "I am a new topic" })
+        .expect(201)
+        .then((res) => {
+          expect(res.body.topic).to.deep.equal({
+            slug: "new_topic",
+            description: "I am a new topic",
+          });
+        });
+    });
+    it("POST: 400 - responds with an error when given invalid data types", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ slug: 123, description: 456 })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal(
+            "Invalid data types. Please use strings."
+          );
+        });
+    });
+    it("POST: 400 - responds with an error when given a body missing a property", () => {
+      return request(app)
+        .post("/api/topics")
+        .send({ slug: "new_topic" })
+        .expect(400)
+        .then((res) => {
+          expect(res.body.msg).to.equal(
+            "Incomplete body. Include 'slug' and 'description"
+          );
+        });
     });
   });
 });

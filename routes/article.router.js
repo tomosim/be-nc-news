@@ -10,14 +10,14 @@ const {
   sendComments,
   postComment,
 } = require("../controllers/comments.controllers");
-const { checkBody } = require("../db/utils/utils");
+const { checkVotes } = require("../db/utils/utils");
 
 articleRouter.route("/").get(sendArticles).post(postArticle);
 
 articleRouter
   .route("/:article_id")
   .get(sendArticle)
-  .patch(checkBody, editVotes)
+  .patch(checkVotes, editVotes)
   .delete(removeArticle);
 
 articleRouter

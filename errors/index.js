@@ -11,7 +11,7 @@ exports.handlePSQLErrors = (err, req, res, next) => {
   const codes = {
     23502: { status: 400, msg: "Incomplete body" },
     "42703": { status: 400, msg: "Column does not exist" },
-    "22P02": { status: 400, msg: "Invalid article ID" },
+    "22P02": { status: 400, msg: "Invalid ID" },
     23503: {
       status: 404,
       msg:

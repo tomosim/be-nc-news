@@ -48,10 +48,24 @@ exports.formatLikes = (usersData, refObj) => {
   return formattedLikes;
 };
 
-exports.checkBody = (req, res, next) => {
+exports.checkVotes = (req, res, next) => {
   if ("inc_votes" in req.body === false)
     next({ status: 400, msg: "Invalid body. Include key 'inc_votes'" });
   if (typeof req.body.inc_votes !== "number")
     next({ status: 400, msg: "Invalid value. 'inc_votes' must be a number" });
   else next();
+};
+
+exports.checkTopic = (req, res, next) => {
+  if ("slug" in req.body === false || "description" in req.body === false) {
+    next({
+      status: 400,
+      msg: "Incomplete body. Include 'slug' and 'description",
+    });
+  } else if (
+    typeof req.body.slug !== "string" ||
+    typeof req.body.description !== "string"
+  ) {
+    next({ status: 400, msg: "Invalid data types. Please use strings." });
+  } else next();
 };
