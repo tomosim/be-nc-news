@@ -615,4 +615,16 @@ describe("/api", () => {
         });
     });
   });
+  describe.only("/users", () => {
+    it("GET: 200 - responds with an array of users", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then((res) => {
+          res.body.users.forEach((user) => {
+            expect(user).to.have.all.keys(["username", "name", "avatar_url"]);
+          });
+        });
+    });
+  });
 });
