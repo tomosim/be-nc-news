@@ -1,5 +1,5 @@
 const knex = require("knex");
-console.log(process.env.NODE_ENV);
 const dbConfig = require("../knexfile");
+console.log(dbConfig);
 
 module.exports = knex(dbConfig);
