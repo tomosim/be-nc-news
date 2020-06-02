@@ -1,0 +1,39 @@
+version: "3.7"
+
+services:
+  app:
+    build: .
+    working_dir: /app
+    ports:
+      - 9090:9090
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://nc_user:nc_password@db:5432/nc_news
+    command:
+      [
+        "wait-for-it/wait-for-it.sh",
+        "postgres://nc_user:nc_password@db:5432/nc_news",
+        "--timeout=1",
+        "--",
+        "npm",
+        "run",
+        "migrate-and-start",
+      ]
+  db:
+    image: postgres:latest
+    # restart: always
+    environment:
+      POSTGRES_DB: nc_news
+      POSTGRES_USER: nc_user
+      POSTGRES_PASSWORD: nc_password
+    volumes:
+      - nc_news_data:/var/lib/postgresql/data
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+volumes:
+  nc_news_data:
