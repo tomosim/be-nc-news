@@ -8,7 +8,7 @@ A hosted version can be found on Heroku [here](https://toms-nc-news-be.herokuapp
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-### 🧱 Prerequisites
+### 🧰 Prerequisites
 
 Before we begin, you'll need to make sure you have the following installed on your machine
 
@@ -76,7 +76,7 @@ The app has been fully tested using, supertest, mocha, and chai. To run the test
 npm test
 ```
 
-## Built With
+## 🧱Built With
 
 - [Express](http://expressjs.com/)
 - [Knex](https://knexjs.org/)
@@ -86,15 +86,15 @@ npm test
 - [Mocha](mochajs.org/)
 - [Nodemon](nodemon.io)
 
-## Authors
+## 📇 Authors
 
 - **Tom Simmons** - [tomosim](https://github.com/tomosim)
 
-## License
+## 🔐 License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Acknowledgments
+## 🏅 Acknowledgments
 
 - [Northcoders](https://northcoders.com/)
 - [Heroku](https://www.heroku.com/)
