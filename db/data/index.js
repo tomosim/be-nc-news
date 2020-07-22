@@ -4,6 +4,7 @@ const data = {
   test: require("./test-data"),
   development: require("./development-data"),
   production: require("./development-data"),
+  docker: require("./development-data"),
 };
 
 module.exports = data[ENV];

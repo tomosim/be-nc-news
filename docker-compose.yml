@@ -18,7 +18,7 @@ services:
         "--",
         "npm",
         "run",
-        "migrate-and-start",
+        "docker-migrate-seed-and-start",
       ]
   db:
     image: postgres:latest
