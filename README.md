@@ -36,10 +36,10 @@ And if you plan on using the dockerised version of this app, you'll need
    npm install
    ```
 
-3. To get the app running on your machine, you'll first probably want to seed the dev database. Lucky for you, there's a script for that!
+3. To get the app running on your machine, you'll first probably want to set up and seed the dev and test databases. Lucky for you, there's a script for that!
 
    ```
-   npm run seed
+   npm run setup-dbs && npm run seed
    ```
 
 4. Now, start the express server and the app will start listening on port 9090 of your localhost.
