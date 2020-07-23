@@ -6,7 +6,7 @@ const userRouter = require("./user.router");
 
 const endpoints = require("../endpoints.json");
 
-apiRouter.get("/", endpoints);
+apiRouter.get("/", (req, res) => res.send(endpoints));
 
 apiRouter.use("/articles", articleRouter);
 apiRouter.use("/comments", commentRouter);
